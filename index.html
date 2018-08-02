@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="app.min.css">
+    <style>
+  
+    </style>
+  </head>
+
+  <body>
+    <div class="app-page" data-page="home">
+      <div class="app-topbar">
+        <div class="app-title" style="background-color:blue;">E-mail Client App</div>
+      </div>
+      <div class="app-content">
+	 
+	<div class="app-section">
+			
+         <ul class="app-list">
+  <li>Click below to send an e-mail!</li>
+ </ul>
+
+        </div>
+			
+<div class="app-section" id="recList">
+			
+       <div class="app-button">List</div>
+
+        </div>			
+	
+        <div class="app-section">
+		
+          <div class="app-button" id="toNextPage">Send a new user</div>
+		 
+        </div>
+      </div>
+    </div>
+	
+		
+  <div class="app-page" data-page="inputs">
+			<div class="app-topbar">
+				<div class="app-title"><span class="app-icon"></span>Inputs</div>
+				<div class="right app-button" data-back>Done</div>
+			</div>
+
+			<div class="app-content">
+			
+            
+			
+         
+				
+				<div class="app-section">
+				<ul class="app-list">
+  <li>From:</li>
+ </ul>
+					<input class="app-input" placeholder="From Address...." id="sender">
+				</div>
+				
+				
+				<div class="app-section">
+				<ul class="app-list">
+  <li>To:</li>
+ </ul>
+					<input class="app-input" placeholder="To Address...." id="receiver">
+				</div>
+
+				<form class="app-section">
+					<input class="app-input" name="subject" placeholder="Subject" id="subject">
+					<textarea class="app-input" name="message" placeholder="Message" id="message"></textarea>
+					<div class="app-button green app-submit" id="send">Send</div>
+				</form>
+			</div>
+		</div>
+
+	
+		
+	
+    <script src="zepto.js"></script>
+    <script src="app.min.js"></script>
+    <script>
+		
+	
+		
+		
+		
+		
+		
+		
+	    
+      App.controller('home', function (page) {
+                 
+		if(typeof localStorage !== 'undefined'){
+		
+			if(localStorage.getItem('receiver') !== null){
+			
+			
+			
+			 var myArray = localStorage.getItem('receiver');
+			 
+			 var toAdd = JSON.parse(myArray);
+			 
+			 $(page).find("#recList").html("");
+			
+			 toAdd.sort();
+			 for(var i=0 ; i < toAdd.length; i++){
+			 
+			 $(page).find("#recList").append('<div class="app-button nextPage" >'+toAdd[i]+'</div>');
+			 
+			 }
+			 
+			 $(page).find(".nextPage").clickable().on("click",function(){
+			 
+			 
+			 localStorage.setItem("nextPageVal",$(this).html());
+			 App.load("inputs")
+			 
+			 
+			 })
+			
+			$(page).find("#recList").show();
+			
+			
+			}else{
+			
+			$(page).find("#recList").hide();
+			
+			}
+			
+			$(page).find("#toNextPage").clickable().on("click",function(){
+			
+			localStorage.removeItem("nextPageVal");
+			 App.load("inputs");
+			
+			
+			});
+		
+		}
+				 
+				 
+				 
+				 
+				 
+				 
+				 
+				 
+				 
+				 
+				 
+				 
+      });
+
+      App.controller('inputs', function (page) {
+	  
+	  if(typeof localStorage !== 'undefined'){
+	  
+		if(localStorage.getItem('sender') !== null){
+		
+		 
+			$(page).find('#sender').val(localStorage.getItem('sender'));
+		
+		if(localStorage.getItem("nextPageVal")!=null){
+		
+		$(page).find('#receiver').val(localStorage.getItem('nextPageVal'));
+		
+		}
+		
+		
+		}
+	  
+	  
+	  
+	  }
+	  
+	  
+	  
+	  $(page).find('#send').clickable().on('click',function(){
+	  
+	  if(typeof localStorage !== 'undefined'){
+	  
+	  localStorage.setItem('sender',$('#sender').val());
+	  var receipientList = new Array();
+	  var receiver = $('#receiver').val();
+	  if(localStorage.getItem('receiver')!== null){
+	  
+	  receipientList = JSON.parse(localStorage.getItem('receiver'));
+	  
+	  }
+	  
+	  if($.inArray(receiver,receipientList) == -1){
+	  receipientList.push(receiver);
+		localStorage.setItem('receiver',JSON.stringify(receipientList));
+		//console.log(JSON.parse(localStorage.getItem('receiver')));
+													}
+	  
+        
+        
+	  	  $.ajax({
+  method: "GET",
+  url: "mail.php",
+  data: { from: $(page).find("#sender").val(), to : $(page).find("#receiver").val() , subject : $(page).find("#subject").val() , message : $(page).find("#message").val()},
+             success: function(response) {
+        content.html(response);
+    }
+});
+	  
+	  
+	  
+	  }else{
+	  
+	  
+	  alert("Browser does not support local Storage")
+	  
+	  
+	  }
+	  
+	  });
+	  
+
+      
+      });
+	  
+	  
+	  
+	
+
+      try {
+        App.restore();
+      } catch (err) {
+        App.load('home');
+		
+      }
+    </script>
+  </body>
+</html>
+
